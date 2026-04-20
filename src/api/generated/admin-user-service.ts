@@ -32,7 +32,10 @@ import type {
   UserResponseDto
 } from './admin-user-service.schemas';
 
+import { customClient } from '../axios';
 
+
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
 
@@ -83,20 +86,14 @@ export const getGetUserByIdUrl = (id: number,) => {
 
 export const getUserById = async (id: number, options?: RequestInit): Promise<getUserByIdResponse> => {
 
-  const res = await fetch(getGetUserByIdUrl(id),
+  return customClient<getUserByIdResponse>(getGetUserByIdUrl(id),
   {
     ...options,
     method: 'GET'
 
 
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: getUserByIdResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getUserByIdResponse
-}
+);}
 
 
 
@@ -109,16 +106,16 @@ export const getGetUserByIdQueryKey = (id: number,) => {
     }
 
 
-export const getGetUserByIdQueryOptions = <TData = Awaited<ReturnType<typeof getUserById>>, TError = ErrorResponse>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUserById>>, TError, TData>>, fetch?: RequestInit}
+export const getGetUserByIdQueryOptions = <TData = Awaited<ReturnType<typeof getUserById>>, TError = ErrorResponse>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUserById>>, TError, TData>>, request?: SecondParameter<typeof customClient>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetUserByIdQueryKey(id);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getUserById>>> = ({ signal }) => getUserById(id, { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getUserById>>> = ({ signal }) => getUserById(id, { signal, ...requestOptions });
 
 
 
@@ -138,7 +135,7 @@ export function useGetUserById<TData = Awaited<ReturnType<typeof getUserById>>, 
           TError,
           Awaited<ReturnType<typeof getUserById>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customClient>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetUserById<TData = Awaited<ReturnType<typeof getUserById>>, TError = ErrorResponse>(
@@ -148,11 +145,11 @@ export function useGetUserById<TData = Awaited<ReturnType<typeof getUserById>>, 
           TError,
           Awaited<ReturnType<typeof getUserById>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customClient>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetUserById<TData = Awaited<ReturnType<typeof getUserById>>, TError = ErrorResponse>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUserById>>, TError, TData>>, fetch?: RequestInit}
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUserById>>, TError, TData>>, request?: SecondParameter<typeof customClient>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -160,7 +157,7 @@ export function useGetUserById<TData = Awaited<ReturnType<typeof getUserById>>, 
  */
 
 export function useGetUserById<TData = Awaited<ReturnType<typeof getUserById>>, TError = ErrorResponse>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUserById>>, TError, TData>>, fetch?: RequestInit}
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUserById>>, TError, TData>>, request?: SecondParameter<typeof customClient>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -224,34 +221,28 @@ export const getDeleteUserUrl = (id: number,) => {
 
 export const deleteUser = async (id: number, options?: RequestInit): Promise<deleteUserResponse> => {
 
-  const res = await fetch(getDeleteUserUrl(id),
+  return customClient<deleteUserResponse>(getDeleteUserUrl(id),
   {
     ...options,
     method: 'DELETE'
 
 
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: deleteUserResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as deleteUserResponse
-}
+);}
 
 
 
 
 export const getDeleteUserMutationOptions = <TError = ErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteUser>>, TError,{id: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteUser>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customClient>}
 ): UseMutationOptions<Awaited<ReturnType<typeof deleteUser>>, TError,{id: number}, TContext> => {
 
 const mutationKey = ['deleteUser'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
 
 
@@ -259,7 +250,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteUser>>, {id: number}> = (props) => {
           const {id} = props ?? {};
 
-          return  deleteUser(id,fetchOptions)
+          return  deleteUser(id,requestOptions)
         }
 
 
@@ -277,7 +268,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary Delete a user (soft delete)
  */
 export const useDeleteUser = <TError = ErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteUser>>, TError,{id: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteUser>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customClient>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof deleteUser>>,
         TError,
@@ -341,20 +332,14 @@ export const getGetAllUsersUrl = (params?: GetAllUsersParams,) => {
 
 export const getAllUsers = async (params?: GetAllUsersParams, options?: RequestInit): Promise<getAllUsersResponse> => {
 
-  const res = await fetch(getGetAllUsersUrl(params),
+  return customClient<getAllUsersResponse>(getGetAllUsersUrl(params),
   {
     ...options,
     method: 'GET'
 
 
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: getAllUsersResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getAllUsersResponse
-}
+);}
 
 
 
@@ -367,16 +352,16 @@ export const getGetAllUsersQueryKey = (params?: GetAllUsersParams,) => {
     }
 
 
-export const getGetAllUsersQueryOptions = <TData = Awaited<ReturnType<typeof getAllUsers>>, TError = ErrorResponse>(params?: GetAllUsersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllUsers>>, TError, TData>>, fetch?: RequestInit}
+export const getGetAllUsersQueryOptions = <TData = Awaited<ReturnType<typeof getAllUsers>>, TError = ErrorResponse>(params?: GetAllUsersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllUsers>>, TError, TData>>, request?: SecondParameter<typeof customClient>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetAllUsersQueryKey(params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAllUsers>>> = ({ signal }) => getAllUsers(params, { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAllUsers>>> = ({ signal }) => getAllUsers(params, { signal, ...requestOptions });
 
 
 
@@ -396,7 +381,7 @@ export function useGetAllUsers<TData = Awaited<ReturnType<typeof getAllUsers>>, 
           TError,
           Awaited<ReturnType<typeof getAllUsers>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customClient>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetAllUsers<TData = Awaited<ReturnType<typeof getAllUsers>>, TError = ErrorResponse>(
@@ -406,11 +391,11 @@ export function useGetAllUsers<TData = Awaited<ReturnType<typeof getAllUsers>>, 
           TError,
           Awaited<ReturnType<typeof getAllUsers>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customClient>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetAllUsers<TData = Awaited<ReturnType<typeof getAllUsers>>, TError = ErrorResponse>(
- params?: GetAllUsersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllUsers>>, TError, TData>>, fetch?: RequestInit}
+ params?: GetAllUsersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllUsers>>, TError, TData>>, request?: SecondParameter<typeof customClient>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -418,7 +403,7 @@ export function useGetAllUsers<TData = Awaited<ReturnType<typeof getAllUsers>>, 
  */
 
 export function useGetAllUsers<TData = Awaited<ReturnType<typeof getAllUsers>>, TError = ErrorResponse>(
- params?: GetAllUsersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllUsers>>, TError, TData>>, fetch?: RequestInit}
+ params?: GetAllUsersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllUsers>>, TError, TData>>, request?: SecondParameter<typeof customClient>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -482,20 +467,14 @@ export const getGetUserCardsAdminUrl = (userId: number,) => {
 
 export const getUserCardsAdmin = async (userId: number, options?: RequestInit): Promise<getUserCardsAdminResponse> => {
 
-  const res = await fetch(getGetUserCardsAdminUrl(userId),
+  return customClient<getUserCardsAdminResponse>(getGetUserCardsAdminUrl(userId),
   {
     ...options,
     method: 'GET'
 
 
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: getUserCardsAdminResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getUserCardsAdminResponse
-}
+);}
 
 
 
@@ -508,16 +487,16 @@ export const getGetUserCardsAdminQueryKey = (userId: number,) => {
     }
 
 
-export const getGetUserCardsAdminQueryOptions = <TData = Awaited<ReturnType<typeof getUserCardsAdmin>>, TError = ErrorResponse>(userId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUserCardsAdmin>>, TError, TData>>, fetch?: RequestInit}
+export const getGetUserCardsAdminQueryOptions = <TData = Awaited<ReturnType<typeof getUserCardsAdmin>>, TError = ErrorResponse>(userId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUserCardsAdmin>>, TError, TData>>, request?: SecondParameter<typeof customClient>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getGetUserCardsAdminQueryKey(userId);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getUserCardsAdmin>>> = ({ signal }) => getUserCardsAdmin(userId, { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getUserCardsAdmin>>> = ({ signal }) => getUserCardsAdmin(userId, { signal, ...requestOptions });
 
 
 
@@ -537,7 +516,7 @@ export function useGetUserCardsAdmin<TData = Awaited<ReturnType<typeof getUserCa
           TError,
           Awaited<ReturnType<typeof getUserCardsAdmin>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customClient>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetUserCardsAdmin<TData = Awaited<ReturnType<typeof getUserCardsAdmin>>, TError = ErrorResponse>(
@@ -547,11 +526,11 @@ export function useGetUserCardsAdmin<TData = Awaited<ReturnType<typeof getUserCa
           TError,
           Awaited<ReturnType<typeof getUserCardsAdmin>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customClient>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetUserCardsAdmin<TData = Awaited<ReturnType<typeof getUserCardsAdmin>>, TError = ErrorResponse>(
- userId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUserCardsAdmin>>, TError, TData>>, fetch?: RequestInit}
+ userId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUserCardsAdmin>>, TError, TData>>, request?: SecondParameter<typeof customClient>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -559,7 +538,7 @@ export function useGetUserCardsAdmin<TData = Awaited<ReturnType<typeof getUserCa
  */
 
 export function useGetUserCardsAdmin<TData = Awaited<ReturnType<typeof getUserCardsAdmin>>, TError = ErrorResponse>(
- userId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUserCardsAdmin>>, TError, TData>>, fetch?: RequestInit}
+ userId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getUserCardsAdmin>>, TError, TData>>, request?: SecondParameter<typeof customClient>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -628,34 +607,28 @@ export const getActivateUserUrl = (id: number,) => {
 
 export const activateUser = async (id: number, options?: RequestInit): Promise<activateUserResponse> => {
 
-  const res = await fetch(getActivateUserUrl(id),
+  return customClient<activateUserResponse>(getActivateUserUrl(id),
   {
     ...options,
     method: 'PUT'
 
 
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: activateUserResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as activateUserResponse
-}
+);}
 
 
 
 
 export const getActivateUserMutationOptions = <TError = ErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof activateUser>>, TError,{id: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof activateUser>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customClient>}
 ): UseMutationOptions<Awaited<ReturnType<typeof activateUser>>, TError,{id: number}, TContext> => {
 
 const mutationKey = ['activateUser'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
 
 
@@ -663,7 +636,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof activateUser>>, {id: number}> = (props) => {
           const {id} = props ?? {};
 
-          return  activateUser(id,fetchOptions)
+          return  activateUser(id,requestOptions)
         }
 
 
@@ -681,7 +654,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary Activate a user account
  */
 export const useActivateUser = <TError = ErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof activateUser>>, TError,{id: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof activateUser>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customClient>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof activateUser>>,
         TError,
@@ -743,34 +716,28 @@ export const getDeactivateUserUrl = (id: number,) => {
 
 export const deactivateUser = async (id: number, options?: RequestInit): Promise<deactivateUserResponse> => {
 
-  const res = await fetch(getDeactivateUserUrl(id),
+  return customClient<deactivateUserResponse>(getDeactivateUserUrl(id),
   {
     ...options,
     method: 'PUT'
 
 
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: deactivateUserResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as deactivateUserResponse
-}
+);}
 
 
 
 
 export const getDeactivateUserMutationOptions = <TError = ErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deactivateUser>>, TError,{id: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deactivateUser>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customClient>}
 ): UseMutationOptions<Awaited<ReturnType<typeof deactivateUser>>, TError,{id: number}, TContext> => {
 
 const mutationKey = ['deactivateUser'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
 
 
@@ -778,7 +745,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof deactivateUser>>, {id: number}> = (props) => {
           const {id} = props ?? {};
 
-          return  deactivateUser(id,fetchOptions)
+          return  deactivateUser(id,requestOptions)
         }
 
 
@@ -796,7 +763,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary Deactivate a user account
  */
 export const useDeactivateUser = <TError = ErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deactivateUser>>, TError,{id: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deactivateUser>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customClient>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof deactivateUser>>,
         TError,
@@ -860,34 +827,28 @@ export const getActivatePaymentCardAdminUrl = (userId: number,
 export const activatePaymentCardAdmin = async (userId: number,
     cardId: number, options?: RequestInit): Promise<activatePaymentCardAdminResponse> => {
 
-  const res = await fetch(getActivatePaymentCardAdminUrl(userId,cardId),
+  return customClient<activatePaymentCardAdminResponse>(getActivatePaymentCardAdminUrl(userId,cardId),
   {
     ...options,
     method: 'PUT'
 
 
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: activatePaymentCardAdminResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as activatePaymentCardAdminResponse
-}
+);}
 
 
 
 
 export const getActivatePaymentCardAdminMutationOptions = <TError = ErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof activatePaymentCardAdmin>>, TError,{userId: number;cardId: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof activatePaymentCardAdmin>>, TError,{userId: number;cardId: number}, TContext>, request?: SecondParameter<typeof customClient>}
 ): UseMutationOptions<Awaited<ReturnType<typeof activatePaymentCardAdmin>>, TError,{userId: number;cardId: number}, TContext> => {
 
 const mutationKey = ['activatePaymentCardAdmin'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
 
 
@@ -895,7 +856,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof activatePaymentCardAdmin>>, {userId: number;cardId: number}> = (props) => {
           const {userId,cardId} = props ?? {};
 
-          return  activatePaymentCardAdmin(userId,cardId,fetchOptions)
+          return  activatePaymentCardAdmin(userId,cardId,requestOptions)
         }
 
 
@@ -913,7 +874,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary Activate a payment card for a user
  */
 export const useActivatePaymentCardAdmin = <TError = ErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof activatePaymentCardAdmin>>, TError,{userId: number;cardId: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof activatePaymentCardAdmin>>, TError,{userId: number;cardId: number}, TContext>, request?: SecondParameter<typeof customClient>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof activatePaymentCardAdmin>>,
         TError,
@@ -977,34 +938,28 @@ export const getDeactivatePaymentCardAdminUrl = (userId: number,
 export const deactivatePaymentCardAdmin = async (userId: number,
     cardId: number, options?: RequestInit): Promise<deactivatePaymentCardAdminResponse> => {
 
-  const res = await fetch(getDeactivatePaymentCardAdminUrl(userId,cardId),
+  return customClient<deactivatePaymentCardAdminResponse>(getDeactivatePaymentCardAdminUrl(userId,cardId),
   {
     ...options,
     method: 'PUT'
 
 
   }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: deactivatePaymentCardAdminResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as deactivatePaymentCardAdminResponse
-}
+);}
 
 
 
 
 export const getDeactivatePaymentCardAdminMutationOptions = <TError = ErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deactivatePaymentCardAdmin>>, TError,{userId: number;cardId: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deactivatePaymentCardAdmin>>, TError,{userId: number;cardId: number}, TContext>, request?: SecondParameter<typeof customClient>}
 ): UseMutationOptions<Awaited<ReturnType<typeof deactivatePaymentCardAdmin>>, TError,{userId: number;cardId: number}, TContext> => {
 
 const mutationKey = ['deactivatePaymentCardAdmin'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
 
 
@@ -1012,7 +967,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof deactivatePaymentCardAdmin>>, {userId: number;cardId: number}> = (props) => {
           const {userId,cardId} = props ?? {};
 
-          return  deactivatePaymentCardAdmin(userId,cardId,fetchOptions)
+          return  deactivatePaymentCardAdmin(userId,cardId,requestOptions)
         }
 
 
@@ -1030,7 +985,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary Deactivate a payment card for a user
  */
 export const useDeactivatePaymentCardAdmin = <TError = ErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deactivatePaymentCardAdmin>>, TError,{userId: number;cardId: number}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deactivatePaymentCardAdmin>>, TError,{userId: number;cardId: number}, TContext>, request?: SecondParameter<typeof customClient>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof deactivatePaymentCardAdmin>>,
         TError,

@@ -130,3 +130,61 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+.price-input::-webkit-inner-spin-button,
+.price-input::-webkit-outer-spin-button {
+  opacity: 1;
+  background-color: transparent;
+  cursor: pointer;
+  height: 1.5rem;
+  margin-right: -4px;
+}
+
+.price-input:focus::-webkit-inner-spin-button {
+  filter: sepia(100%) hue-rotate(200deg) saturate(300%);
+}
+
+.price-input {
+  -moz-appearance: textfield;
+}
+
+@layer base {
+
+  ::-webkit-datetime-edit-fields-wrapper { background: transparent; }
+  ::-webkit-datetime-edit-text { color: #4f46e5; padding: 0 0.3em; }
+
+  ::-webkit-datetime-edit-month-field,
+  ::-webkit-datetime-edit-day-field,
+  ::-webkit-datetime-edit-year-field {
+    color: #18181b;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+}
+
+input[type="date"] {
+  accent-color: #4f46e5;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  border-radius: 8px;
+  filter: invert(34%) sepia(91%) saturate(3025%) hue-rotate(232deg) brightness(94%) contrast(91%); /* Tints default icon to your Indigo */
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  appearance: auto;
+  opacity: 1;
+  cursor: pointer;
+  background-color: #f4f4f5;
+  border-left: 1px solid #e4e4e7;
+  height: 100%;
+  width: 24px;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}

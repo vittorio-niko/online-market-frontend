@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { ShoppingCart, User, LogOut, ShoppingBag, Search } from 'lucide-react';
+import { ShoppingCart, User, LogOut, ShoppingBag } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useCartStore } from '@/store/useCartStore';
 
@@ -9,7 +9,8 @@ export const MainLayout = () => {
     const location = useLocation();
 
     return (
-        <div className="min-h-screen bg-surface-50/50 font-sans text-surface-900 selection:bg-primary-100">
+        <div className="min-h-screen flex flex-col bg-surface-50/50 font-sans text-surface-900 selection:bg-primary-100">
+
             <header className="sticky top-0 z-50 w-full bg-white/70 backdrop-blur-xl border-b border-surface-200/60 shadow-sm">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16 gap-4">
@@ -20,21 +21,11 @@ export const MainLayout = () => {
                                 <ShoppingBag className="w-5 h-5" />
                             </div>
                             <span className="font-extrabold text-xl tracking-tight">
-                Market<span className="text-primary-600">.local</span>
-              </span>
+                                Market<span className="text-primary-600">.local</span>
+                            </span>
                         </Link>
 
-                        {/* Search Bar - Makes it look like a real Marketplace */}
-                        <div className="hidden md:flex flex-1 max-w-md relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400" />
-                            <input
-                                type="text"
-                                placeholder="Search products..."
-                                className="w-full bg-surface-100/50 border-none rounded-2xl py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary-500/20 transition-all"
-                            />
-                        </div>
-
-                        {/* Desktop Nav */}
+                        {/* Navigation */}
                         <nav className="flex items-center gap-1 sm:gap-3">
                             <Link
                                 to="/cart"
@@ -47,8 +38,8 @@ export const MainLayout = () => {
                                 <ShoppingCart className="w-5 h-5" />
                                 {totalItems > 0 && (
                                     <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary-600 text-[10px] font-bold text-white ring-2 ring-white animate-fade-in">
-                    {totalItems}
-                  </span>
+                                        {totalItems}
+                                    </span>
                                 )}
                             </Link>
 
@@ -83,14 +74,15 @@ export const MainLayout = () => {
                 </div>
             </header>
 
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-slide-up">
+            <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 animate-slide-up">
                 <Outlet />
             </main>
 
-            {/* Modern Simple Footer */}
-            <footer className="border-t border-surface-200 bg-white py-12 mt-20">
+            <footer className="border-t border-surface-200 bg-white py-12 mt-auto">
                 <div className="max-w-7xl mx-auto px-4 text-center">
-                    <p className="text-surface-500 text-sm">© 2026 Market Local. All rights reserved.</p>
+                    <p className="text-surface-500 text-sm font-medium">
+                        © 2026 Market Local. All rights reserved.
+                    </p>
                 </div>
             </footer>
         </div>
