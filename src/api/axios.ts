@@ -32,8 +32,27 @@ apiClient.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
+        const errorData = error.response?.data;
+
+        const isBanned =
+            errorData?.code === 'INACTIVE_USER_ACTION' ||
+            (errorData?.message && (
+                errorData.message.toLowerCase().includes('deactivated') ||
+                errorData.message.toLowerCase().includes('banned')
+            ));
+
+        if (isBanned && window.location.pathname !== '/banned') {
+            useAuthStore.getState().logout();
+            window.location.href = '/banned';
+            return Promise.reject(error);
+        }
 
         if (error.response?.status === 401 && !originalRequest._retry) {
+
+            if (originalRequest.url?.includes('/login')) {
+                return Promise.reject(error);
+            }
+
             if (isRefreshing) {
                 return new Promise(function (resolve, reject) {
                     failedQueue.push({ resolve, reject });

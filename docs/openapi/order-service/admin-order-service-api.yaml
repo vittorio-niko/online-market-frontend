@@ -33,12 +33,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              example:
-                code: INVALID_ARGUMENT
-                message: Validation failed
-                fieldErrors:
-                  name: "must not be blank"
-                  price: "must be at least 0.01"
         '401':
           description: Unauthorized - missing or invalid JWT token
           content:
@@ -57,10 +51,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              example:
-                code: ITEM_CONFLICT
-                message: Item with name 'Laptop' already exists
-                fieldErrors: null
         '500':
           description: Internal server error
           content:
@@ -200,10 +190,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              example:
-                code: RESOURCE_NOT_FOUND
-                message: Item with id 123 not found
-                fieldErrors: null
         '500':
           description: Internal server error
           content:
@@ -264,7 +250,7 @@ paths:
       parameters:
         - name: userId
           in: query
-          required: true
+          required: false
           schema:
             type: string
             maxLength: 255
@@ -373,10 +359,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              example:
-                code: RESOURCE_NOT_FOUND
-                message: Order with id 123 not found
-                fieldErrors: null
         '500':
           description: Internal server error
           content:
@@ -456,11 +438,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              example:
-                code: INVALID_ARGUMENT
-                message: Invalid delivery status value
-                fieldErrors:
-                  deliveryStatus: "must be one of: PENDING, SHIPPED, DELIVERED, CANCELLED"
         '401':
           description: Unauthorized - missing or invalid JWT token
           content:
@@ -540,10 +517,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              example:
-                code: PAYMENT_CONFLICT
-                message: Order 123 is already paid
-                fieldErrors: null
         '500':
           description: Internal server error
           content:
@@ -599,8 +572,6 @@ components:
 
     FilterOrderRequestDto:
       type: object
-      required:
-        - userId
       properties:
         userId:
           type: string
@@ -806,9 +777,6 @@ components:
           additionalProperties:
             type: string
           nullable: true
-          example:
-            name: "must not be blank"
-            price: "must be at least 0.01"
 
   securitySchemes:
     BearerAuth:
