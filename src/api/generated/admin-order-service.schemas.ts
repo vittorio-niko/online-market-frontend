@@ -52,7 +52,7 @@ export const FilterOrderRequestDtoPaymentStatus = {
 
 export interface FilterOrderRequestDto {
   /** @maxLength 255 */
-  userId: string;
+  userId?: string;
   deliveryStatus?: FilterOrderRequestDtoDeliveryStatus;
   paymentStatus?: FilterOrderRequestDtoPaymentStatus;
   deleted?: boolean;
@@ -235,7 +235,7 @@ export type GetOrdersParams = {
 /**
  * @maxLength 255
  */
-userId: string;
+userId?: string;
 deliveryStatus?: GetOrdersDeliveryStatus;
 paymentStatus?: GetOrdersPaymentStatus;
 deleted?: boolean;

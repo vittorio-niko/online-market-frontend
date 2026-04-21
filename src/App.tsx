@@ -11,12 +11,14 @@ import LoginPage from '@/features/auth/LoginPage';
 import RegisterPage from '@/features/auth/RegisterPage';
 import CartPage from '@/features/cart/CartPage';
 import ProfilePage from '@/features/profile/ProfilePage';
+import BannedPage from '@/features/public/BannedPage';
 
 import AdminLoginPage from '@/features/admin/AdminLoginPage';
 import AdminDashboard from '@/features/admin/AdminDashboard';
 import AdminOrders from '@/features/admin/AdminOrders';
 import AdminUsers from '@/features/admin/AdminUsers';
 import AdminPayments from '@/features/admin/AdminPayments';
+import AdminProducts from "@/features/admin/AdminProducts.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -91,6 +93,7 @@ export default function App() {
                 </ProtectedRoute>
               }>
                 <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="products" element={<AdminProducts />} />
                 <Route path="orders" element={<AdminOrders />} />
                 <Route path="users" element={<AdminUsers />} />
                 <Route path="payments" element={<AdminPayments />} />
@@ -98,6 +101,8 @@ export default function App() {
                 <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
               </Route>
 
+              {/* Banned User Route */}
+              <Route path="/banned" element={<BannedPage />} />
               {/* Fallback Route */}
               <Route path="*" element={<Navigate to="/" replace />} />
 

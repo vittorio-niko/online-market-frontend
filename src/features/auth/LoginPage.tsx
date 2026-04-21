@@ -4,12 +4,16 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useLogin } from '@/api/generated/api-gateway-api';
-import { LogIn } from 'lucide-react'; // Added icon
+import { getCurrentUser } from '@/api/generated/user-user-service';
+import { LogIn } from 'lucide-react';
 
 export default function LoginPage() {
     const { register, handleSubmit, formState: { errors, dirtyFields } } = useForm();
     const [serverError, setServerError] = useState('');
+
     const setToken = useAuthStore((state) => state.setToken);
+    const logout = useAuthStore((state) => state.logout); // Added logout to clear state if banned
+
     const navigate = useNavigate();
 
     const { mutateAsync: login, isPending } = useLogin();
@@ -18,9 +22,24 @@ export default function LoginPage() {
         try {
             setServerError('');
             const response = await login({ data });
+
             if (response.status === 200 && response.data?.accessToken) {
                 setToken(response.data.accessToken);
-                navigate('/');
+
+                try {
+                    const meResponse = await getCurrentUser();
+
+                    if (meResponse.status === 200 && meResponse.data.active === false) {
+                        logout();
+                        navigate('/banned', { replace: true });
+                        return;
+                    }
+
+                    navigate('/');
+                } catch (meError) {
+                    logout(); // Failsafe
+                    setServerError('Failed to verify account status.');
+                }
             }
         } catch (error: any) {
             setServerError(error.response?.data?.message || 'Invalid credentials');

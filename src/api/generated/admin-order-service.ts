@@ -549,7 +549,7 @@ export type getOrdersResponseError = (getOrdersResponse400 | getOrdersResponse40
 
 export type getOrdersResponse = (getOrdersResponseSuccess | getOrdersResponseError)
 
-export const getGetOrdersUrl = (params: GetOrdersParams,) => {
+export const getGetOrdersUrl = (params?: GetOrdersParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -564,7 +564,7 @@ export const getGetOrdersUrl = (params: GetOrdersParams,) => {
   return stringifiedParams.length > 0 ? `/admin/orders?${stringifiedParams}` : `/admin/orders`
 }
 
-export const getOrders = async (params: GetOrdersParams, options?: RequestInit): Promise<getOrdersResponse> => {
+export const getOrders = async (params?: GetOrdersParams, options?: RequestInit): Promise<getOrdersResponse> => {
 
   return customClient<getOrdersResponse>(getGetOrdersUrl(params),
   {
@@ -586,7 +586,7 @@ export const getGetOrdersQueryKey = (params?: GetOrdersParams,) => {
     }
 
 
-export const getGetOrdersQueryOptions = <TData = Awaited<ReturnType<typeof getOrders>>, TError = ErrorResponse>(params: GetOrdersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrders>>, TError, TData>>, request?: SecondParameter<typeof customClient>}
+export const getGetOrdersQueryOptions = <TData = Awaited<ReturnType<typeof getOrders>>, TError = ErrorResponse>(params?: GetOrdersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrders>>, TError, TData>>, request?: SecondParameter<typeof customClient>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -609,7 +609,7 @@ export type GetOrdersQueryError = ErrorResponse
 
 
 export function useGetOrders<TData = Awaited<ReturnType<typeof getOrders>>, TError = ErrorResponse>(
- params: GetOrdersParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrders>>, TError, TData>> & Pick<
+ params: undefined |  GetOrdersParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrders>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getOrders>>,
           TError,
@@ -619,7 +619,7 @@ export function useGetOrders<TData = Awaited<ReturnType<typeof getOrders>>, TErr
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetOrders<TData = Awaited<ReturnType<typeof getOrders>>, TError = ErrorResponse>(
- params: GetOrdersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrders>>, TError, TData>> & Pick<
+ params?: GetOrdersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrders>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getOrders>>,
           TError,
@@ -629,7 +629,7 @@ export function useGetOrders<TData = Awaited<ReturnType<typeof getOrders>>, TErr
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetOrders<TData = Awaited<ReturnType<typeof getOrders>>, TError = ErrorResponse>(
- params: GetOrdersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrders>>, TError, TData>>, request?: SecondParameter<typeof customClient>}
+ params?: GetOrdersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrders>>, TError, TData>>, request?: SecondParameter<typeof customClient>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -637,7 +637,7 @@ export function useGetOrders<TData = Awaited<ReturnType<typeof getOrders>>, TErr
  */
 
 export function useGetOrders<TData = Awaited<ReturnType<typeof getOrders>>, TError = ErrorResponse>(
- params: GetOrdersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrders>>, TError, TData>>, request?: SecondParameter<typeof customClient>}
+ params?: GetOrdersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOrders>>, TError, TData>>, request?: SecondParameter<typeof customClient>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
