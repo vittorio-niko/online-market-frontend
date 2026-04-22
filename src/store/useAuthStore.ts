@@ -1,34 +1,31 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { jwtDecode } from 'jwt-decode';
+import axios from 'axios';
 
 interface AuthState {
     token: string | null;
     role: 'USER' | 'ADMIN' | null;
     setToken: (token: string) => void;
-    logout: () => void;
+    logout: () => Promise<void>;
+    refreshAccessToken: () => Promise<void>;
     isAuthenticated: () => boolean;
 }
 
-// Bulletproof helper to find the ADMIN role regardless of backend framework format
 const extractRole = (decoded: any): 'ADMIN' | 'USER' => {
     if (!decoded) return 'USER';
 
-    // 1. Gather ONLY the fields where a backend might put a role.
-    // (We intentionally exclude 'sub' or 'email' so users can't spoof it with an admin@... email)
     const roleFields = [
         decoded.role,
         decoded.roles,
         decoded.authorities,
         decoded.scope,
         decoded.groups,
-        decoded.realm_access?.roles // Common in Keycloak
+        decoded.realm_access?.roles
     ];
 
-    // 2. Convert whatever structure the backend sent (Array, String, Object) into one big uppercase string
     const roleString = JSON.stringify(roleFields).toUpperCase();
 
-    // 3. If the word ADMIN appears anywhere in those specific fields, they are an admin
     if (roleString.includes('ADMIN')) {
         return 'ADMIN';
     }
@@ -36,11 +33,14 @@ const extractRole = (decoded: any): 'ADMIN' | 'USER' => {
     return 'USER';
 };
 
+let isRefreshing = false;
+
 export const useAuthStore = create<AuthState>()(
     persist(
         (set, get) => ({
             token: null,
             role: null,
+
             setToken: (token) => {
                 try {
                     const decoded: any = jwtDecode(token);
@@ -51,13 +51,52 @@ export const useAuthStore = create<AuthState>()(
                     set({ token: null, role: null });
                 }
             },
-            logout: () => set({ token: null, role: null }),
+
+            logout: async () => {
+                try {
+                    await axios.post('http://api.market.local/auth/logout', {}, {
+                        withCredentials: true
+                    });
+                } catch (error) {
+                    console.warn("Backend session already terminated or unreachable.");
+                } finally {
+                    set({ token: null, role: null });
+                }
+            },
+
+            refreshAccessToken: async () => {
+                if (isRefreshing) return;
+
+                isRefreshing = true;
+                try {
+                    const response = await axios.post('http://api.market.local/auth/refresh', {}, {
+                        withCredentials: true
+                    });
+
+                    get().setToken(response.data.accessToken);
+                } catch (error) {
+                    console.warn("Silent refresh failed. Session expired.");
+                    set({ token: null, role: null });
+                } finally {
+                    isRefreshing = false;
+                }
+            },
+
             isAuthenticated: () => {
-                const { token } = get();
+                const { token, refreshAccessToken } = get();
                 if (!token) return false;
+
                 try {
                     const decoded: any = jwtDecode(token);
-                    return decoded.exp * 1000 > Date.now();
+                    const timeRemaining = (decoded.exp * 1000) - Date.now();
+
+                    if (timeRemaining < 10000) {
+                        refreshAccessToken().catch((err) => {
+                            console.error("Background refresh sequence encountered an error", err);
+                        });
+                    }
+
+                    return true;
                 } catch {
                     return false;
                 }

@@ -30,7 +30,6 @@ export const AdminLayout = () => {
         { name: 'Payments', path: '/admin/payments', icon: CreditCard },
     ];
 
-    // Determine the title based on the path
     const pageTitle = location.pathname.includes('/admin/dashboard')
         ? 'Dashboard Overview'
         : menuItems.find(i => location.pathname.includes(i.path))?.name || 'Dashboard Overview';
@@ -40,7 +39,6 @@ export const AdminLayout = () => {
             {/* Sidebar - Nudged to w-60 (240px) */}
             <aside className="w-60 bg-white border-r border-surface-200 flex flex-col fixed h-full z-20 shadow-sm">
                 <div className="p-6">
-                    {/* Wrap the logo area in a Link to /admin/dashboard */}
                     <Link
                         to="/admin/dashboard"
                         className="flex items-center gap-3 mb-10 px-1 group cursor-pointer"
@@ -76,7 +74,6 @@ export const AdminLayout = () => {
                 </div>
             </aside>
 
-            {/* Content Area - ml-60 and min-w-0 */}
             <div className="flex-1 ml-60 flex flex-col min-h-screen min-w-0">
 
                 {/* Header - px-3 (Gains 20px of width over the px-8 version) */}
@@ -107,7 +104,6 @@ export const AdminLayout = () => {
                     </div>
                 </header>
 
-                {/* Main - px-3 matches header */}
                 <main className="px-3 py-8 w-full animate-fade-in flex-1">
                     <Outlet />
                 </main>

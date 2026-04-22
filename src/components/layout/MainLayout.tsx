@@ -8,6 +8,11 @@ export const MainLayout = () => {
     const totalItems = useCartStore((state) => state.getTotalItems());
     const location = useLocation();
 
+    const handleLogout = async () => {
+        await logout();
+        window.location.href = '/login';
+    };
+
     return (
         <div className="min-h-screen flex flex-col bg-surface-50/50 font-sans text-surface-900 selection:bg-primary-100">
 
@@ -55,7 +60,7 @@ export const MainLayout = () => {
                                         Profile
                                     </Link>
                                     <button
-                                        onClick={() => { logout(); window.location.href = '/login'; }}
+                                        onClick={handleLogout}
                                         className="p-2.5 text-surface-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
                                     >
                                         <LogOut className="w-4 h-4" />
