@@ -28,7 +28,7 @@ export default function MyCardsTab() {
             await addCard({ data });
             setIsAdding(false);
             reset();
-            await refetch(); // Await the refetch
+            await refetch();
         } catch (error: any) {
             if (error.response?.data?.code === 'CARDS_COUNT_LIMIT_OVERFLOW') {
                 alert('You have reached the maximum limit of 5 cards.');
@@ -43,7 +43,7 @@ export default function MyCardsTab() {
             if (isActive) await deactivateCard({ cardId });
             else await activateCard({ cardId });
 
-            await refetch(); // Await the refetch
+            await refetch();
         } catch (error) {
             alert('Failed to update card status.');
         }

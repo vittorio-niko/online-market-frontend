@@ -53,11 +53,9 @@ export default function LandingPage() {
                     </div>
                 </section>
 
-                {/* Controls Section: Search, Filter, Sort */}
                 <section className="space-y-6">
                     <div className="flex flex-col lg:flex-row gap-4 items-end lg:items-center justify-between bg-white p-6 rounded-[2rem] border border-surface-200 shadow-sm">
 
-                        {/* Search & Price Filters */}
                         <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
                             <div className="relative flex-1 min-w-[240px]">
                                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400" />
@@ -101,7 +99,6 @@ export default function LandingPage() {
                             </div>
                         </div>
 
-                        {/* Sorting & Pagination */}
                         <div className="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-end">
                             <div className="relative min-w-[160px]">
                                 <ArrowUpDown className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400" />
