@@ -21,7 +21,7 @@ export default function MyCardsTab() {
     const { mutateAsync: deactivateCard } = useDeactivatePaymentCard();
     const { mutateAsync: deleteCard } = useDeletePaymentCard();
 
-    const { register, handleSubmit, reset, formState: { errors } } = useForm();
+    const { register, handleSubmit, reset, formState: { errors, dirtyFields } } = useForm();
 
     const handleAddCard = async (data: any) => {
         try {
@@ -56,6 +56,13 @@ export default function MyCardsTab() {
         }
     };
 
+    const getFieldStyle = (isDirtyField: boolean | undefined, extraClasses = "") => {
+        const base = `w-full p-4 border rounded-2xl outline-none transition-all duration-200 ${extraClasses}`;
+        return isDirtyField
+            ? `${base} bg-primary-50/50 border-primary-200 ring-2 ring-primary-50`
+            : `${base} bg-white border-surface-200 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10`;
+    };
+
     if (isLoading) return <div className="p-8 text-center text-surface-500 animate-pulse">Loading cards...</div>;
 
     return (
@@ -75,43 +82,57 @@ export default function MyCardsTab() {
             <p className="text-sm text-surface-500 mb-6">You can link up to 5 payment cards. ({cards?.length || 0}/5 used)</p>
 
             {isAdding && (
-                <form onSubmit={handleSubmit(handleAddCard)} className="mb-8 p-6 bg-surface-50 border border-surface-200 rounded-xl space-y-4">
+                <form onSubmit={handleSubmit(handleAddCard)} className="mb-8 p-6 bg-surface-50 border border-surface-200 rounded-[2rem] space-y-5">
                     <div>
-                        <label className="block text-sm font-medium text-surface-700 mb-1">Card Number</label>
+                        <label className="block text-xs font-black text-surface-400 uppercase tracking-widest mb-2 ml-1">Card Number</label>
                         <input
                             placeholder="1234123412341234"
                             maxLength={16}
                             {...register('number', { required: true, pattern: /^[0-9]{16}$/ })}
-                            className="w-full p-3 border border-surface-300 rounded-lg outline-none font-mono"
+                            className={getFieldStyle(dirtyFields.number, 'font-mono')}
                         />
-                        {errors.number && <span className="text-red-500 text-xs">Must be exactly 16 digits</span>}
+                        {errors.number && <span className="text-red-500 text-[10px] font-bold mt-1 ml-1 uppercase block">Must be exactly 16 digits</span>}
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
-                            <label className="block text-sm font-medium text-surface-700 mb-1">Cardholder Name</label>
+                            <label className="block text-xs font-black text-surface-400 uppercase tracking-widest mb-2 ml-1">Cardholder Name</label>
                             <input
                                 {...register('holder', { required: true })}
-                                className="w-full p-3 border border-surface-300 rounded-lg outline-none"
+                                className={getFieldStyle(dirtyFields.holder)}
                             />
+                            {errors.holder && <span className="text-red-500 text-[10px] font-bold mt-1 ml-1 uppercase block">Name is required</span>}
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-surface-700 mb-1">Expiration Date</label>
+                            <label className="block text-xs font-black text-surface-400 uppercase tracking-widest mb-2 ml-1">Expiration Date</label>
                             <input
                                 type="date"
                                 {...register('expirationDate', { required: true })}
-                                className="w-full p-3 border border-surface-300 rounded-lg outline-none"
+                                className={getFieldStyle(dirtyFields.expirationDate)}
                             />
+                            {errors.expirationDate && <span className="text-red-500 text-[10px] font-bold mt-1 ml-1 uppercase block">Date is required</span>}
                         </div>
                     </div>
-                    <div className="pt-2 flex gap-3">
-                        <button type="submit" className="bg-primary-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-primary-700">Save Card</button>
-                        <button type="button" onClick={() => setIsAdding(false)} className="text-surface-600 px-4 py-2 hover:bg-surface-200 rounded-lg">Cancel</button>
+
+                    <div className="pt-4 flex gap-3">
+                        <button
+                            type="button"
+                            onClick={() => setIsAdding(false)}
+                            className="flex-1 text-surface-700 font-bold px-6 py-4 hover:bg-surface-200 rounded-2xl transition-all border-2 border-transparent hover:border-surface-300"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            className="flex-1 bg-surface-900 text-white px-6 py-4 rounded-2xl font-bold hover:bg-black transition-all shadow-lg active:scale-95"
+                        >
+                            Save Card
+                        </button>
                     </div>
                 </form>
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Now properly mapped since 'cards' is unwrapped */}
                 {cards?.map(card => (
                     <div key={card.id} className="relative p-6 border border-surface-200 rounded-2xl bg-gradient-to-br from-surface-50 to-white shadow-sm overflow-hidden group">
                         <div className="flex justify-between items-start mb-8">
