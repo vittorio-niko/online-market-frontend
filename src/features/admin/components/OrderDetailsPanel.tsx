@@ -124,11 +124,14 @@ export default function OrderDetailsPanel({ orderId, onClose }: AdminOrderDetail
                                     <div>
                                         <label className="block text-xs font-black text-surface-400 uppercase tracking-widest mb-3 ml-1">Payment Status</label>
                                         <div className="flex items-center gap-4">
-                                           <span className={`px-5 py-4 rounded-2xl text-sm font-bold uppercase tracking-wider border ${
-                                               order.paymentStatus === OrderResponseDtoPaymentStatus.PAID ? 'bg-green-50 text-green-700 border-green-200' : 'bg-orange-50 text-orange-700 border-orange-200'
-                                           }`}>
-                                             {order.paymentStatus}
-                                           </span>
+                                            <span className={`px-5 py-4 rounded-2xl text-sm font-bold uppercase tracking-wider border ${
+                                                order.paymentStatus === OrderResponseDtoPaymentStatus.PAID ? 'bg-green-50 text-green-700 border-green-200' :
+                                                    order.paymentStatus === OrderResponseDtoPaymentStatus.FAILED ? 'bg-red-50 text-red-700 border-red-200' :
+                                                        order.paymentStatus === OrderResponseDtoPaymentStatus.PENDING ? 'bg-orange-50 text-orange-700 border-orange-200' :
+                                                            'bg-surface-100 text-surface-700 border-surface-200'
+                                            }`}>
+                                                {order.paymentStatus}
+                                            </span>
 
                                             {order.paymentStatus !== OrderResponseDtoPaymentStatus.PAID && (
                                                 <button
@@ -140,7 +143,8 @@ export default function OrderDetailsPanel({ orderId, onClose }: AdminOrderDetail
                                                             : 'bg-surface-900 text-white hover:bg-black active:scale-95'
                                                     }`}
                                                 >
-                                                    {order.paymentStatus === OrderResponseDtoPaymentStatus.PENDING ? 'Processing...' : 'Trigger Pay'}
+                                                    {order.paymentStatus === OrderResponseDtoPaymentStatus.PENDING ? 'Processing...' :
+                                                        order.paymentStatus === OrderResponseDtoPaymentStatus.FAILED ? 'Retry Payment' : 'Trigger Pay'}
                                                 </button>
                                             )}
                                         </div>
