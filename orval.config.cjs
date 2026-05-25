@@ -47,6 +47,12 @@ module.exports = {
             mode: 'split',
             target: './src/api/generated/admin-user-service.ts',
             client: 'react-query',
+            override: {
+                mutator: {
+                    path: './src/api/axios.ts',
+                    name: 'customClient',
+                },
+            },
         },
     },
     'user-order-service': {
