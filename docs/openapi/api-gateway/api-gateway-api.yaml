@@ -1,0 +1,396 @@
+openapi: 3.0.3
+info:
+  title: API Gateway - Authentication Service
+  description: Authentication and authorization API for the marketplace platform. Handles user registration, login, token refresh, and logout.
+  version: 1.0.0
+servers:
+  - url: http://market.local
+    description: Local development server
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user account
+      description: Creates a new user account in the system. User will receive a confirmation email (if configured).
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterUserRequestDto'
+            examples:
+              validRequest:
+                summary: Valid registration request
+                value:
+                  name: "John"
+                  surname: "Doe"
+                  birthDate: "1990-05-15"
+                  email: "john.doe@example.com"
+                  password: "SecurePass123!"
+      responses:
+        '201':
+          description: User successfully registered
+          content: {}
+        '400':
+          description: Invalid request (validation failed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validationError:
+                  summary: Validation errors
+                  value:
+                    code: INVALID_ARGUMENT
+                    message: Validation failed
+                    fieldErrors:
+                      email: "must be a well-formed email address"
+                      name: "must not be blank"
+                      password: "must not be blank"
+                      birthDate: "must be a date in the past or present"
+                malformedJson:
+                  summary: Malformed JSON
+                  value:
+                    code: INVALID_ARGUMENT
+                    message: Malformed JSON request
+                    fieldErrors: null
+        '409':
+          description: User already exists (email conflict)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                emailConflict:
+                  summary: Email already used
+                  value:
+                    code: EMAIL_DUPLICATE_CONFLICT
+                    message: User with email 'john.doe@example.com' already exists
+                    fieldErrors: null
+                registrationError:
+                  summary: Auth service registration error
+                  value:
+                    code: AUTH_REGISTRATION_ERROR
+                    message: Failed to register user in authentication service
+                    fieldErrors: null
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: INTERNAL_ERROR
+                message: Unexpected error
+                fieldErrors: null
+      security: []
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Authenticate user and get access token
+      description: Validates user credentials and returns an access token. Refresh token is set as an HTTP-only cookie.
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequestDto'
+            examples:
+              validRequest:
+                summary: Valid login credentials
+                value:
+                  email: "john.doe@example.com"
+                  password: "SecurePass123!"
+      responses:
+        '200':
+          description: Successfully authenticated
+          headers:
+            Set-Cookie:
+              description: HTTP-only cookie containing the refresh token
+              schema:
+                type: string
+                example: "refreshToken=eyJhbGciOiJIUzI1NiIs...; Path=/auth; HttpOnly; Max-Age=2592000; SameSite=Lax"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponseDto'
+              example:
+                accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        '400':
+          description: Invalid request (validation failed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: INVALID_ARGUMENT
+                message: Validation failed
+                fieldErrors:
+                  email: "must be a well-formed email address"
+                  password: "must not be blank"
+        '401':
+          description: Authentication failed (invalid credentials)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: INVALID_CREDENTIALS
+                message: Invalid email or password
+                fieldErrors: null
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                authServiceError:
+                  summary: Auth service unavailable
+                  value:
+                    code: AUTH_SERVICE_RESPONSE_ERROR
+                    message: Authentication service is temporarily unavailable
+                    fieldErrors: null
+                internalError:
+                  summary: Unexpected error
+                  value:
+                    code: INTERNAL_ERROR
+                    message: Unexpected error
+                    fieldErrors: null
+      security: []
+
+  /auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh access token using refresh token
+      description: Uses the refresh token from the HTTP-only cookie to generate a new access token pair.
+      operationId: refresh
+      parameters:
+        - name: refreshToken
+          in: cookie
+          required: true
+          description: Refresh token stored in HTTP-only cookie
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully refreshed tokens
+          headers:
+            Set-Cookie:
+              description: New refresh token as HTTP-only cookie
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponseDto'
+              example:
+                accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: INVALID_ARGUMENT
+                message: Malformed JSON request
+                fieldErrors: null
+        '401':
+          description: Invalid or expired refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidToken:
+                  summary: Invalid token format
+                  value:
+                    code: INVALID_TOKEN
+                    message: Invalid refresh token format
+                    fieldErrors: null
+                expiredToken:
+                  summary: Token expired
+                  value:
+                    code: INVALID_TOKEN
+                    message: Refresh token has expired
+                    fieldErrors: null
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: INTERNAL_ERROR
+                message: Unexpected error
+                fieldErrors: null
+      security: []
+
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: Logout user and invalidate refresh token
+      description: Invalidates the refresh token and clears the HTTP-only cookie.
+      operationId: logout
+      parameters:
+        - name: refreshToken
+          in: cookie
+          required: false
+          description: Refresh token stored in HTTP-only cookie (optional)
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Successfully logged out
+          headers:
+            Set-Cookie:
+              description: Cleared refresh token cookie
+              schema:
+                type: string
+                example: "refreshToken=; Path=/auth; Max-Age=0; HttpOnly; SameSite=Lax"
+          content: {}
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: INTERNAL_ERROR
+                message: Unexpected error
+                fieldErrors: null
+      security: []
+
+components:
+  schemas:
+    RegisterUserRequestDto:
+      type: object
+      description: Request body for user registration
+      required:
+        - name
+        - surname
+        - birthDate
+        - email
+        - password
+      properties:
+        name:
+          type: string
+          description: User's first name
+          minLength: 1
+          maxLength: 100
+          example: "John"
+        surname:
+          type: string
+          description: User's last name
+          minLength: 1
+          maxLength: 100
+          example: "Doe"
+        birthDate:
+          type: string
+          format: date
+          description: Date of birth (must be in the past or present)
+          example: "1990-05-15"
+        email:
+          type: string
+          format: email
+          description: User's email address (used for login)
+          maxLength: 255
+          example: "john.doe@example.com"
+        password:
+          type: string
+          description: User's password (will be validated for strength)
+          writeOnly: true
+          example: "SecurePass123!"
+
+    LoginRequestDto:
+      type: object
+      description: Request body for user login
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address
+          example: "john.doe@example.com"
+        password:
+          type: string
+          description: User's password
+          writeOnly: true
+          example: "SecurePass123!"
+
+    LoginResponseDto:
+      type: object
+      description: Response containing access token (refresh token is set as HTTP-only cookie)
+      properties:
+        accessToken:
+          type: string
+          description: JWT access token (Bearer token for API authentication)
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+        refreshToken:
+          type: string
+          description: Refresh token (deprecated - use HTTP-only cookie instead)
+          nullable: true
+          example: null
+
+    ErrorResponse:
+      type: object
+      description: Standard error response format used across all endpoints
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Machine-readable error code
+          enum:
+            - RESOURCE_NOT_FOUND
+            - EMAIL_DUPLICATE_CONFLICT
+            - PASSWORD_VALIDATION_ERROR
+            - INVALID_ARGUMENT
+            - INVALID_CREDENTIALS
+            - INVALID_TOKEN
+            - FORBIDDEN
+            - UNAUTHORIZED
+            - AUTH_SERVICE_RESPONSE_ERROR
+            - AUTH_REGISTRATION_ERROR
+            - WEB_CLIENT_ERROR
+            - INTERNAL_ERROR
+          example: INVALID_ARGUMENT
+        message:
+          type: string
+          description: Human-readable error description
+          example: Validation failed
+        fieldErrors:
+          type: object
+          description: Map of field names to validation error messages (only for validation errors)
+          additionalProperties:
+            type: string
+          nullable: true
+          example:
+            email: "must be a well-formed email address"
+            password: "must not be blank"
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT access token for authenticated API requests
+      x-example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: refreshToken
+      description: HTTP-only cookie containing the refresh token (used for /auth/refresh and /auth/logout)
