@@ -2,6 +2,43 @@
 
 This repository houses the production-grade, highly responsive web user interface for the **Online Marketplace Ecosystem**. Built on **React 18**, **TypeScript**, and **Vite**, the application delivers a seamless single-page experience (SPA) for both public consumers and platform administrators. It leverages automated OpenAPI client generation to communicate with backend microservices via a centralized API Gateway.
 
+![Online Market Interface](./docs/img/default_page.png)
+---
+
+## 📸 User Interface & Design System
+
+### 🛒 Client-Facing Storefront
+Market views designed using Tailwind CSS.
+
+<table>
+  <tr>
+    <td align="center"><b>Storefront Home & Catalog</b></td>
+    <td align="center"><b>Shopping Cart & Checkout</b></td>
+    <td align="center"><b>Customer Order History</b></td>
+  </tr>
+  <tr>
+    <td><img src="./docs/img/default_page.png" width="300" alt="Market Default Page"/></td>
+    <td><img src="./docs/img/user_cart_view.png" width="300" alt="User Cart View"/></td>
+    <td><img src="./docs/img/user_orders_view.png" width="300" alt="User Orders View"/></td>
+  </tr>
+</table>
+
+### 🛡️ Administrative Control Panel
+Internal management boards for platform administrators to handle inventory and operations workflows.
+
+<table>
+  <tr>
+    <td align="center"><b>Product Catalog Management</b></td>
+    <td align="center"><b>Global Order Fulfillment</b></td>
+  </tr>
+  <tr>
+    <td><img src="./docs/img/admin_products_view.png" width="425" alt="Admin Products View"/></td>
+    <td><img src="./docs/img/admin_orders_view.png" width="425" alt="Admin Orders View"/></td>
+  </tr>
+</table>
+
+---
+
 ---
 
 ## 🛠 Tech Stack & UI Architecture
